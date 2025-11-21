@@ -28,7 +28,9 @@
 
 ## Resultado Real: 165GB Liberados
 
-> *"Depois de anos desenvolvendo software, meu SSD de 500GB estava com apenas 23GB livres. Os scripts deste repositório me ajudaram a identificar e recuperar **165GB de espaço** em uma única sessão de limpeza."*
+> *"Eu estava cansado de ver aquela notificação irritante do Ubuntu: **'Espaço em disco insuficiente'**. Aparecia toda semana, sempre no pior momento — no meio de um deploy, compilando um projeto, ou durante uma reunião importante. Eu perdia horas tentando descobrir o que estava consumindo meu SSD de 500GB, deletava alguns arquivos aleatórios, e duas semanas depois... a notificação voltava.*
+>
+> *Cansei. Decidi investigar a fundo e descobri que o problema não eram meus arquivos — eram caches ocultos de IDEs, Docker inflado, e node_modules de projetos que eu nem lembrava que existiam. Criei estes scripts para resolver de uma vez por todas. Na primeira execução, recuperei **165GB de espaço**. Nunca mais vi aquela notificação."*
 >
 > **— Johnny, Desenvolvedor Full Stack & Linux Specialist**
 
