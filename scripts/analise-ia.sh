@@ -324,7 +324,7 @@ if [ -d "$HOME_DIR/Downloads" ]; then
     DL_SIZE=$(get_size_bytes "$HOME_DIR/Downloads")
     DL_COUNT=$(find "$HOME_DIR/Downloads" -type f 2>/dev/null | wc -l)
     DL_OLD=$(find "$HOME_DIR/Downloads" -type f -mtime +90 2>/dev/null | wc -l)
-    echo "- **Tamanho total:** $(format_size $DL_SIZE)"
+    echo "- **Tamanho total:** $(format_size "$DL_SIZE")"
     echo "- **Total de arquivos:** $DL_COUNT"
     echo "- **Arquivos >90 dias:** $DL_OLD"
 fi

@@ -66,7 +66,7 @@ clean_docker() {
         echo -e "${GREEN}Limpando recursos Docker...${NC}"
 
         # Parar todos os containers primeiro
-        docker stop $(docker ps -q) 2>/dev/null || true
+        docker ps -q | xargs -r docker stop 2>/dev/null || true
 
         # Limpar tudo que não está em uso
         docker system prune -af --volumes 2>/dev/null || true
@@ -144,12 +144,12 @@ clean_snaps() {
     if prompt_confirmation "Remover todas as revisões desabilitadas de snaps?"; then
         echo -e "${GREEN}Removendo snaps desabilitados...${NC}"
 
-        snap list --all | awk '/disabled/{print $1, $3}' | while read snapname revision; do
+        snap list --all | awk '/disabled/{print $1, $3}' | while read -r snapname revision; do
             if [ -n "$snapname" ] && [ -n "$revision" ]; then
-                size_before=$(du -sb ~/snap/$snapname 2>/dev/null | cut -f1 || echo 0)
+                size_before=$(du -sb ~/snap/"$snapname" 2>/dev/null | cut -f1 || echo 0)
                 echo "  Removendo $snapname (rev $revision)..."
                 sudo snap remove "$snapname" --revision="$revision" 2>/dev/null || true
-                size_after=$(du -sb ~/snap/$snapname 2>/dev/null | cut -f1 || echo 0)
+                size_after=$(du -sb ~/snap/"$snapname" 2>/dev/null | cut -f1 || echo 0)
                 freed=$((size_before - size_after))
                 if [ "$freed" -gt 0 ]; then
                     TOTAL_FREED=$((TOTAL_FREED + freed))
