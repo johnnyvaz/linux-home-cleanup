@@ -259,6 +259,25 @@ Experiência com sistemas Linux desde 2010. Especialista em automação e otimiz
 
 ---
 
+## Apoie o Projeto
+
+Se este projeto te ajudou a recuperar espaço em disco e resolver problemas, considere apoiar com um cafezinho! ☕
+
+### PIX (Brasil) 🇧🇷
+
+```text
+pix@cd2.io
+```
+
+**Outras formas de apoiar:**
+
+- ⭐ Deixe uma estrela neste repositório
+- 🐛 Reporte bugs e sugira melhorias
+- 📖 Compartilhe com outros desenvolvedores
+- 💻 Contribua com código ([veja como](CONTRIBUTING.md))
+
+---
+
 ## Keywords
 
 `linux` `ubuntu` `bash` `cleanup` `disk-space` `cache` `vscode` `docker` `node-modules` `system-maintenance` `devops` `automation` `shell-script` `home-directory` `storage` `optimization` `snap` `apt` `developer-tools`
