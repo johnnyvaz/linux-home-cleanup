@@ -80,7 +80,7 @@ clean_docker() {
     DOCKER_RAW="$HOME/.docker/desktop/vms/0/data/Docker.raw"
     if [ -f "$DOCKER_RAW" ]; then
         RAW_SIZE=$(stat -c%s "$DOCKER_RAW" 2>/dev/null || echo 0)
-        echo -e "  Tamanho atual: ${RED}$(format_size $RAW_SIZE)${NC}"
+        echo -e "  Tamanho atual: ${RED}$(format_size "$RAW_SIZE")${NC}"
         echo ""
         echo -e "${YELLOW}Para reduzir o Docker.raw você tem 3 opções:${NC}"
         echo ""
@@ -111,7 +111,7 @@ clean_docker() {
             rm -f "$DOCKER_RAW"
 
             TOTAL_FREED=$((TOTAL_FREED + RAW_SIZE))
-            echo -e "${GREEN}Docker.raw removido! Liberado: $(format_size $RAW_SIZE)${NC}"
+            echo -e "${GREEN}Docker.raw removido! Liberado: $(format_size "$RAW_SIZE")${NC}"
             echo -e "${YELLOW}Reinicie o Docker Desktop para criar um novo disco.${NC}"
         fi
     fi
@@ -164,7 +164,7 @@ clean_snaps() {
     VSCODE_SNAP_SIZE=$(du -sb ~/snap/code 2>/dev/null | cut -f1 || echo 0)
     if [ "$VSCODE_SNAP_SIZE" -gt 10737418240 ]; then  # > 10GB
         echo ""
-        echo -e "${RED}ATENÇÃO: ~/snap/code tem $(format_size $VSCODE_SNAP_SIZE)${NC}"
+        echo -e "${RED}ATENÇÃO: ~/snap/code tem $(format_size "$VSCODE_SNAP_SIZE")${NC}"
         echo -e "${YELLOW}Isso é muito grande! Provavelmente tem cache/extensões duplicados.${NC}"
         echo ""
         echo "Estrutura:"
@@ -197,13 +197,13 @@ clean_cache() {
     echo ""
 
     CACHE_TOTAL=$(du -sb ~/.cache 2>/dev/null | cut -f1 || echo 0)
-    echo -e "Total: ${CYAN}$(format_size $CACHE_TOTAL)${NC}"
+    echo -e "Total: ${CYAN}$(format_size "$CACHE_TOTAL")${NC}"
     echo ""
 
     # uv (gerenciador de pacotes Python)
     UV_SIZE=$(get_dir_size "$HOME/.cache/uv")
     if [ "$UV_SIZE" -gt 1073741824 ]; then  # > 1GB
-        echo -e "${YELLOW}Cache do uv (Python): $(format_size $UV_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do uv (Python): $(format_size "$UV_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do uv?"; then
             rm -rf ~/.cache/uv/*
             TOTAL_FREED=$((TOTAL_FREED + UV_SIZE))
@@ -214,7 +214,7 @@ clean_cache() {
     # Brave Browser
     BRAVE_SIZE=$(get_dir_size "$HOME/.cache/BraveSoftware")
     if [ "$BRAVE_SIZE" -gt 1073741824 ]; then
-        echo -e "${YELLOW}Cache do Brave: $(format_size $BRAVE_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do Brave: $(format_size "$BRAVE_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do Brave?"; then
             rm -rf ~/.cache/BraveSoftware/Brave-Browser/Default/Cache/*
             rm -rf ~/.cache/BraveSoftware/Brave-Browser/Default/Code\ Cache/*
@@ -226,7 +226,7 @@ clean_cache() {
     # Puppeteer
     PUPPETEER_SIZE=$(get_dir_size "$HOME/.cache/puppeteer")
     if [ "$PUPPETEER_SIZE" -gt 536870912 ]; then  # > 500MB
-        echo -e "${YELLOW}Cache do Puppeteer: $(format_size $PUPPETEER_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do Puppeteer: $(format_size "$PUPPETEER_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do Puppeteer?"; then
             rm -rf ~/.cache/puppeteer/*
             TOTAL_FREED=$((TOTAL_FREED + PUPPETEER_SIZE))
@@ -237,7 +237,7 @@ clean_cache() {
     # Playwright
     PLAYWRIGHT_SIZE=$(get_dir_size "$HOME/.cache/ms-playwright")
     if [ "$PLAYWRIGHT_SIZE" -gt 536870912 ]; then
-        echo -e "${YELLOW}Cache do Playwright: $(format_size $PLAYWRIGHT_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do Playwright: $(format_size "$PLAYWRIGHT_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do Playwright?"; then
             rm -rf ~/.cache/ms-playwright/*
             rm -rf ~/.cache/ms-playwright-go/*
@@ -249,7 +249,7 @@ clean_cache() {
     # TypeScript
     TS_SIZE=$(get_dir_size "$HOME/.cache/typescript")
     if [ "$TS_SIZE" -gt 104857600 ]; then  # > 100MB
-        echo -e "${YELLOW}Cache do TypeScript: $(format_size $TS_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do TypeScript: $(format_size "$TS_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do TypeScript?"; then
             rm -rf ~/.cache/typescript/*
             TOTAL_FREED=$((TOTAL_FREED + TS_SIZE))
@@ -260,7 +260,7 @@ clean_cache() {
     # Yarn
     YARN_SIZE=$(get_dir_size "$HOME/.cache/yarn")
     if [ "$YARN_SIZE" -gt 104857600 ]; then
-        echo -e "${YELLOW}Cache do Yarn: $(format_size $YARN_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do Yarn: $(format_size "$YARN_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do Yarn?"; then
             yarn cache clean 2>/dev/null || rm -rf ~/.cache/yarn/*
             TOTAL_FREED=$((TOTAL_FREED + YARN_SIZE))
@@ -271,7 +271,7 @@ clean_cache() {
     # pnpm
     PNPM_SIZE=$(get_dir_size "$HOME/.cache/pnpm")
     if [ "$PNPM_SIZE" -gt 104857600 ]; then
-        echo -e "${YELLOW}Cache do pnpm: $(format_size $PNPM_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do pnpm: $(format_size "$PNPM_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do pnpm?"; then
             pnpm store prune 2>/dev/null || rm -rf ~/.cache/pnpm/*
             TOTAL_FREED=$((TOTAL_FREED + PNPM_SIZE))
@@ -282,7 +282,7 @@ clean_cache() {
     # JetBrains
     JB_SIZE=$(get_dir_size "$HOME/.cache/JetBrains")
     if [ "$JB_SIZE" -gt 104857600 ]; then
-        echo -e "${YELLOW}Cache do JetBrains: $(format_size $JB_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do JetBrains: $(format_size "$JB_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do JetBrains?"; then
             rm -rf ~/.cache/JetBrains/*
             TOTAL_FREED=$((TOTAL_FREED + JB_SIZE))
@@ -293,7 +293,7 @@ clean_cache() {
     # Thumbnails
     THUMB_SIZE=$(get_dir_size "$HOME/.cache/thumbnails")
     if [ "$THUMB_SIZE" -gt 52428800 ]; then  # > 50MB
-        echo -e "${YELLOW}Thumbnails: $(format_size $THUMB_SIZE)${NC}"
+        echo -e "${YELLOW}Thumbnails: $(format_size "$THUMB_SIZE")${NC}"
         if prompt_confirmation "Limpar thumbnails?"; then
             rm -rf ~/.cache/thumbnails/*
             TOTAL_FREED=$((TOTAL_FREED + THUMB_SIZE))
@@ -304,7 +304,7 @@ clean_cache() {
     # Tracker (indexador do GNOME)
     TRACKER_SIZE=$(get_dir_size "$HOME/.cache/tracker3")
     if [ "$TRACKER_SIZE" -gt 536870912 ]; then
-        echo -e "${YELLOW}Cache do Tracker: $(format_size $TRACKER_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do Tracker: $(format_size "$TRACKER_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do Tracker (será reconstruído)?"; then
             tracker3 reset -s -r 2>/dev/null || rm -rf ~/.cache/tracker3/*
             TOTAL_FREED=$((TOTAL_FREED + TRACKER_SIZE))
@@ -315,7 +315,7 @@ clean_cache() {
     # node-gyp
     NODEGYP_SIZE=$(get_dir_size "$HOME/.cache/node-gyp")
     if [ "$NODEGYP_SIZE" -gt 52428800 ]; then
-        echo -e "${YELLOW}Cache do node-gyp: $(format_size $NODEGYP_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do node-gyp: $(format_size "$NODEGYP_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do node-gyp?"; then
             rm -rf ~/.cache/node-gyp/*
             TOTAL_FREED=$((TOTAL_FREED + NODEGYP_SIZE))
@@ -326,7 +326,7 @@ clean_cache() {
     # Prisma
     PRISMA_SIZE=$(get_dir_size "$HOME/.cache/prisma")
     if [ "$PRISMA_SIZE" -gt 104857600 ]; then
-        echo -e "${YELLOW}Cache do Prisma: $(format_size $PRISMA_SIZE)${NC}"
+        echo -e "${YELLOW}Cache do Prisma: $(format_size "$PRISMA_SIZE")${NC}"
         if prompt_confirmation "Limpar cache do Prisma?"; then
             rm -rf ~/.cache/prisma/*
             TOTAL_FREED=$((TOTAL_FREED + PRISMA_SIZE))
@@ -372,7 +372,7 @@ main() {
     clean_apt
 
     header "RESUMO FINAL"
-    echo -e "${GREEN}Total aproximado liberado: ${BOLD}$(format_size $TOTAL_FREED)${NC}"
+    echo -e "${GREEN}Total aproximado liberado: ${BOLD}$(format_size "$TOTAL_FREED")${NC}"
     echo ""
     echo -e "${YELLOW}Verificando espaço atual:${NC}"
     df -h /home
