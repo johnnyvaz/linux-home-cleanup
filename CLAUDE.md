@@ -2,9 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Note:** For complete agent guidelines, see [AGENTS.md](AGENTS.md). This file is kept for Claude Code compatibility.
+
 ## Project Overview
 
-Linux Home Cleanup Toolkit - Professional collection of Bash scripts for Linux system maintenance, disk space analysis, and home directory optimization. Designed as a reference repository and learning resource.
+Linux Home Cleanup Toolkit - Professional collection of Bash scripts for Linux system maintenance, disk space analysis, and home directory optimization. Designed as a reference repository and learning resource for mentees.
 
 ## Repository Structure
 
@@ -19,7 +21,15 @@ linux-home-cleanup/
 │   ├── GUIA-LIMPEZA.md       # Complete cleanup guide
 │   ├── PROBLEMAS-VSCODE.md   # VS Code space issues documentation
 │   └── CASOS-DE-USO.md       # Real-world use cases
-├── README.md                 # Project overview with testimonial
+├── .codex/                   # OpenAI Codex CLI config
+│   └── instructions.md
+├── .gemini/                  # Google Gemini CLI config
+│   ├── instructions.md
+│   └── settings.json
+├── .github/                  # GitHub templates
+├── AGENTS.md                 # Unified agent instructions
+├── CLAUDE.md                 # This file (Claude Code)
+├── README.md                 # Project overview
 ├── CONTRIBUTING.md           # Contribution guidelines
 └── LICENSE                   # MIT License
 ```
@@ -39,8 +49,6 @@ Disk space analysis tool that scans `$HOME` and generates reports:
 ./analise-espaco.sh [directory]  # defaults to $HOME
 ```
 
-Reports saved to `$HOME/Documentos/limpeza/reports/`
-
 ### limpeza-geral.sh
 Unified cleanup script with interactive menu:
 - VS Code-based IDEs cache (Code, Cursor, Windsurf, Antigravity)
@@ -49,7 +57,6 @@ Unified cleanup script with interactive menu:
 - Node.js cache (npm)
 - System cleanup (apt, journalctl)
 - Docker cleanup
-- IDE extension analysis
 
 ```bash
 ./limpeza-geral.sh           # interactive menu
@@ -70,32 +77,79 @@ Deep system cleanup with sudo operations:
 ```
 
 ### scripts/analise-ia.sh
-Generates structured markdown report optimized for AI analysis (ChatGPT, Claude, Gemini):
+Generates structured markdown report for AI analysis:
 
 ```bash
 ./scripts/analise-ia.sh > relatorio.txt
-# Paste content in AI assistant for personalized cleanup recommendations
 ```
 
 ## Code Conventions
 
-- All scripts use `set -euo pipefail` for strict error handling
-- Colored output via ANSI escape codes (RED, GREEN, YELLOW, BLUE, CYAN, MAGENTA, BOLD, NC)
-- Common helper functions:
-  - `format_size()` - numfmt wrapper for human-readable sizes
-  - `get_dir_size()` - returns directory size in bytes
-  - `prompt_confirmation()` - interactive yes/no prompt
-  - `header()` / `subheader()` - formatted section titles
-- User confirmations required before destructive operations
-- Size thresholds in bytes (e.g., 1073741824 = 1GB, 536870912 = 500MB)
+### Required Standards
 
-## Documentation Language
+```bash
+#!/bin/bash
+set -euo pipefail  # Always use strict mode
 
-All documentation is in Brazilian Portuguese (pt-BR) as this is a reference for mentees.
+# Color variables (use these, not raw ANSI codes)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+```
 
-## Key Technical Details
+### Helper Functions
 
-- Scripts target Ubuntu 20.04+ and derivatives
-- Supports multiple VS Code forks: Code, Cursor, Windsurf, Antigravity
-- Docker cleanup includes Docker Desktop's Docker.raw virtual disk
-- Snap cleanup respects revision retention settings
+- `format_size($bytes)` - Convert bytes to human readable (1GB → "1.0GiB")
+- `get_dir_size($path)` - Get directory size in bytes
+- `prompt_confirmation($msg)` - Interactive yes/no prompt
+- `header($title)` / `subheader($title)` - Formatted section headers
+- `clean_directory($path, $desc)` - Safe cleanup with size tracking
+
+### Size Thresholds (bytes)
+
+```bash
+100MB  = 104857600
+500MB  = 536870912
+1GB    = 1073741824
+5GB    = 5368709120
+10GB   = 10737418240
+```
+
+## Rules
+
+### DO
+
+- Always confirm before deleting files
+- Use `$HOME` instead of hardcoded paths
+- Handle errors: `command 2>/dev/null || true`
+- Quote variables: `"$var"`
+- Comment in Portuguese (target audience)
+- Test on Ubuntu 20.04+
+
+### DON'T
+
+- Delete without user confirmation
+- Add external dependencies unnecessarily
+- Write user docs in English
+- Use tabs (use 4 spaces)
+
+## Technical Context
+
+### Supported IDEs
+
+| IDE | Config | Extensions |
+|-----|--------|------------|
+| VS Code | `~/.config/Code/` | `~/.vscode/extensions/` |
+| Cursor | `~/.config/Cursor/` | `~/.cursor/extensions/` |
+| Windsurf | `~/.config/Windsurf/` | `~/.windsurf/extensions/` |
+| Antigravity | `~/.config/Antigravity/` | `~/.antigravity/extensions/` |
+
+### Target Systems
+
+- Ubuntu 20.04+
+- Linux Mint
+- Pop!_OS
+- Debian-based distributions

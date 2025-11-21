@@ -1,0 +1,20 @@
+{
+  "project": {
+    "name": "Linux Home Cleanup Toolkit",
+    "description": "Bash scripts for disk cleanup and optimization on Ubuntu Linux",
+    "language": "bash",
+    "documentation_language": "pt-BR"
+  },
+  "instructions_file": "instructions.md",
+  "context_files": [
+    "AGENTS.md",
+    "README.md",
+    "CONTRIBUTING.md"
+  ],
+  "coding_standards": {
+    "indentation": "4 spaces",
+    "error_handling": "set -euo pipefail",
+    "confirm_deletions": true,
+    "use_color_variables": true
+  }
+}
