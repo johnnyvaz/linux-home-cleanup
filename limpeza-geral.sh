@@ -22,10 +22,6 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# ===== Config =====
-BACKUP_DIR="$HOME/backups"
-TS="$(date +%Y%m%d_%H%M%S)"
-
 # ===== Funções Auxiliares =====
 prompt_confirmation() {
     local prompt="$1"
@@ -52,10 +48,12 @@ clean_directory() {
     local desc="$2"
 
     if [ -d "$dir" ]; then
-        local size=$(get_dir_size "$dir")
-        local size_human=$(format_size "$size")
+        local size
+        size=$(get_dir_size "$dir")
+        local size_human
+        size_human=$(format_size "$size")
         echo -e "  ${YELLOW}Limpando${NC} $desc: ${CYAN}$size_human${NC}"
-        rm -rf "$dir"/* 2>/dev/null || true
+        rm -rf "${dir:?}/"* 2>/dev/null || true
         TOTAL_CLEANED=$((TOTAL_CLEANED + size))
     fi
 }
@@ -79,8 +77,14 @@ analyze_extensions() {
         ext_name=$(basename "$ext_path")
 
         if [ -d "$ext_path" ]; then
+            local mod_date
             mod_date=$(stat -c '%y' "$ext_path" 2>/dev/null | cut -d' ' -f1)
-            mod_days=$(( ($(date +%s) - $(stat -c '%Y' "$ext_path" 2>/dev/null || echo $(date +%s))) / 86400 ))
+            local now
+            now=$(date +%s)
+            local mod_epoch
+            mod_epoch=$(stat -c '%Y' "$ext_path" 2>/dev/null || printf '%s\n' "$now")
+            local mod_days
+            mod_days=$(((now - mod_epoch) / 86400))
 
             if [ "$mod_days" -gt 180 ]; then
                 echo -e "  ${RED}[ANTIGA]${NC} ${size}\t${mod_date} (${mod_days} dias)\t${ext_name}"
@@ -95,13 +99,13 @@ analyze_extensions() {
     echo ""
 
     echo -e "${YELLOW}Verificando versoes duplicadas...${NC}"
-    ls -1 "$ext_dir" 2>/dev/null | while read ext; do
+    find "$ext_dir" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' 2>/dev/null | while IFS= read -r ext; do
         base_name=$(echo "$ext" | sed 's/-[0-9]*\.[0-9]*\.[0-9]*$//' | sed 's/-[0-9]*\.[0-9]*$//')
         echo "$base_name"
-    done | sort | uniq -d | while read dup; do
+    done | sort | uniq -d | while IFS= read -r dup; do
         if [ -n "$dup" ]; then
             echo -e "${RED}  Duplicada: $dup${NC}"
-            ls -1d "$ext_dir"/"$dup"* 2>/dev/null | while read ver; do
+            find "$ext_dir" -maxdepth 1 -mindepth 1 -type d -name "${dup}*" -print 2>/dev/null | while IFS= read -r ver; do
                 size=$(du -sh "$ver" 2>/dev/null | cut -f1)
                 echo -e "    - $(basename "$ver") (${size})"
             done
@@ -126,7 +130,7 @@ show_menu() {
     echo "8) Analisar extensões antigas dos IDEs"
     echo "9) Sair"
     echo ""
-    read -p "Escolha uma opção: " choice
+    read -r -p "Escolha uma opção: " choice
     echo ""
 }
 
@@ -190,7 +194,7 @@ clean_vscode_ides() {
     echo ""
 
     echo -e "${BLUE}========================================${NC}"
-    echo -e "${GREEN}Total liberado (IDEs): ${CYAN}$(format_size $TOTAL_CLEANED)${NC}"
+    echo -e "${GREEN}Total liberado (IDEs): ${CYAN}$(format_size "$TOTAL_CLEANED")${NC}"
     echo -e "${BLUE}========================================${NC}"
     echo ""
 }
@@ -342,7 +346,7 @@ main() {
             *) echo -e "${RED}Opção inválida!${NC}" ;;
         esac
         echo ""
-        read -p "Pressione Enter para continuar..."
+        read -r -p "Pressione Enter para continuar..."
         clear
     done
 }
