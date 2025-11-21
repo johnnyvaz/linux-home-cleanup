@@ -46,12 +46,12 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
 
     # Detectar shell
     if [ -f "$HOME/.zshrc" ]; then
-        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+        echo "export PATH=\"$HOME/.local/bin:$PATH\"" >> "$HOME/.zshrc"
         echo -e "${GREEN}Adicionado ao ~/.zshrc${NC}"
     fi
 
     if [ -f "$HOME/.bashrc" ]; then
-        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+        echo "export PATH=\"$HOME/.local/bin:$PATH\"" >> "$HOME/.bashrc"
         echo -e "${GREEN}Adicionado ao ~/.bashrc${NC}"
     fi
 

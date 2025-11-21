@@ -47,7 +47,7 @@ echo ""
 echo "- **Data:** $(date '+%Y-%m-%d %H:%M')"
 echo "- **Hostname:** $(hostname)"
 echo "- **Usuário:** $USER"
-echo "- **Distro:** $(lsb_release -d 2>/dev/null | cut -f2 || cat /etc/os-release | grep PRETTY_NAME | cut -d'"' -f2)"
+echo "- **Distro:** $(lsb_release -d 2>/dev/null | cut -f2 || grep -m1 PRETTY_NAME /etc/os-release | cut -d'"' -f2)"
 echo "- **Kernel:** $(uname -r)"
 echo ""
 
@@ -61,7 +61,7 @@ echo '```'
 echo ""
 
 TOTAL_HOME=$(get_size_bytes "$HOME_DIR")
-echo "- **Tamanho total do HOME:** $(format_size $TOTAL_HOME)"
+echo "- **Tamanho total do HOME:** $(format_size "$TOTAL_HOME")"
 echo ""
 
 # ===== Top Diretórios =====
@@ -70,7 +70,7 @@ echo ""
 echo "| Tamanho | % | Diretório |"
 echo "|---------|---|-----------|"
 
-du -sb "$HOME_DIR"/*/ 2>/dev/null | sort -rn | head -25 | while read size dir; do
+du -sb "$HOME_DIR"/*/ 2>/dev/null | sort -rn | head -25 | while read -r size dir; do
     if [ "$TOTAL_HOME" -gt 0 ]; then
         pct=$((size * 100 / TOTAL_HOME))
     else
@@ -89,11 +89,11 @@ echo ""
 
 if [ -d "$HOME_DIR/.cache" ]; then
     CACHE_SIZE=$(get_size_bytes "$HOME_DIR/.cache")
-    echo "**Tamanho total:** $(format_size $CACHE_SIZE)"
+    echo "**Tamanho total:** $(format_size "$CACHE_SIZE")"
     echo ""
     echo "| Tamanho | Diretório |"
     echo "|---------|-----------|"
-    du -sb "$HOME_DIR/.cache"/*/ 2>/dev/null | sort -rn | head -15 | while read size dir; do
+    du -sb "$HOME_DIR/.cache"/*/ 2>/dev/null | sort -rn | head -15 | while read -r size dir; do
         size_human=$(format_size "$size")
         dir_name=$(basename "$dir")
         echo "| $size_human | $dir_name |"
@@ -108,7 +108,7 @@ echo ""
 if [ -d "$HOME_DIR/.config" ]; then
     echo "| Tamanho | Aplicativo |"
     echo "|---------|------------|"
-    du -sb "$HOME_DIR/.config"/*/ 2>/dev/null | sort -rn | head -15 | while read size dir; do
+    du -sb "$HOME_DIR/.config"/*/ 2>/dev/null | sort -rn | head -15 | while read -r size dir; do
         size_human=$(format_size "$size")
         dir_name=$(basename "$dir")
         echo "| $size_human | $dir_name |"
@@ -126,7 +126,7 @@ for ide in Code Cursor Windsurf Antigravity; do
         IDE_SIZE=$(get_size_bytes "$CONFIG_DIR")
         echo "### $ide"
         echo ""
-        echo "- **Config:** $(format_size $IDE_SIZE)"
+        echo "- **Config:** $(format_size "$IDE_SIZE")"
 
         # Extensões
         case $ide in
@@ -136,8 +136,8 @@ for ide in Code Cursor Windsurf Antigravity; do
 
         if [ -d "$EXT_DIR" ]; then
             EXT_SIZE=$(get_size_bytes "$EXT_DIR")
-            EXT_COUNT=$(ls -1 "$EXT_DIR" 2>/dev/null | wc -l)
-            echo "- **Extensões:** $(format_size $EXT_SIZE) ($EXT_COUNT extensões)"
+            EXT_COUNT=$(find "$EXT_DIR" -maxdepth 1 -mindepth 1 2>/dev/null | wc -l)
+            echo "- **Extensões:** $(format_size "$EXT_SIZE") ($EXT_COUNT extensões)"
         fi
 
         # Detalhes do cache
@@ -145,7 +145,7 @@ for ide in Code Cursor Windsurf Antigravity; do
         for subdir in Cache CachedData CachedExtensionVSIXs GPUCache logs; do
             if [ -d "$CONFIG_DIR/$subdir" ]; then
                 SUB_SIZE=$(get_size_bytes "$CONFIG_DIR/$subdir")
-                echo "  - $subdir: $(format_size $SUB_SIZE)"
+                echo "  - $subdir: $(format_size "$SUB_SIZE")"
             fi
         done
         echo ""
@@ -158,11 +158,11 @@ echo ""
 
 if [ -d "$HOME_DIR/snap" ]; then
     SNAP_SIZE=$(get_size_bytes "$HOME_DIR/snap")
-    echo "**Tamanho total:** $(format_size $SNAP_SIZE)"
+    echo "**Tamanho total:** $(format_size "$SNAP_SIZE")"
     echo ""
     echo "| Tamanho | Aplicativo |"
     echo "|---------|------------|"
-    du -sb "$HOME_DIR/snap"/*/ 2>/dev/null | sort -rn | head -10 | while read size dir; do
+    du -sb "$HOME_DIR/snap"/*/ 2>/dev/null | sort -rn | head -10 | while read -r size dir; do
         size_human=$(format_size "$size")
         dir_name=$(basename "$dir")
         echo "| $size_human | $dir_name |"
@@ -192,7 +192,7 @@ if command -v docker &> /dev/null; then
     DOCKER_RAW="$HOME_DIR/.docker/desktop/vms/0/data/Docker.raw"
     if [ -f "$DOCKER_RAW" ]; then
         RAW_SIZE=$(stat -c%s "$DOCKER_RAW" 2>/dev/null || echo 0)
-        echo "**Docker.raw (disco virtual):** $(format_size $RAW_SIZE)"
+        echo "**Docker.raw (disco virtual):** $(format_size "$RAW_SIZE")"
         echo ""
     fi
 else
@@ -204,13 +204,10 @@ fi
 echo "## Node.js (node_modules)"
 echo ""
 
-NODE_TOTAL=0
-NODE_COUNT=0
-
 echo "| Tamanho | Última Modificação | Projeto |"
 echo "|---------|-------------------|---------|"
 
-find "$HOME_DIR" -maxdepth 5 -name "node_modules" -type d 2>/dev/null | while read dir; do
+find "$HOME_DIR" -maxdepth 5 -name "node_modules" -type d 2>/dev/null | while IFS= read -r dir; do
     size=$(get_size_bytes "$dir")
     size_human=$(format_size "$size")
     parent=$(dirname "$dir")
@@ -229,7 +226,7 @@ echo ""
 
 NODE_TOTAL_SIZE=$(find "$HOME_DIR" -maxdepth 5 -name "node_modules" -type d -exec du -sb {} + 2>/dev/null | awk '{s+=$1} END {print s+0}')
 NODE_COUNT=$(find "$HOME_DIR" -maxdepth 5 -name "node_modules" -type d 2>/dev/null | wc -l)
-echo "**Total node_modules:** $(format_size $NODE_TOTAL_SIZE) em $NODE_COUNT diretórios"
+echo "**Total node_modules:** $(format_size "$NODE_TOTAL_SIZE") em $NODE_COUNT diretórios"
 echo ""
 
 # ===== Arquivos por Tipo =====
@@ -242,27 +239,27 @@ echo "|------|---------|------------|"
 # Vídeos
 VIDEO_SIZE=$(find "$HOME_DIR" -type f \( -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.avi" -o -iname "*.mov" -o -iname "*.webm" \) -printf '%s\n' 2>/dev/null | awk '{s+=$1} END {print s+0}')
 VIDEO_COUNT=$(find "$HOME_DIR" -type f \( -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.avi" -o -iname "*.mov" -o -iname "*.webm" \) 2>/dev/null | wc -l)
-echo "| Vídeos | $(format_size $VIDEO_SIZE) | $VIDEO_COUNT |"
+echo "| Vídeos | $(format_size "$VIDEO_SIZE") | $VIDEO_COUNT |"
 
 # Imagens
 IMG_SIZE=$(find "$HOME_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.raw" -o -iname "*.psd" \) -printf '%s\n' 2>/dev/null | awk '{s+=$1} END {print s+0}')
 IMG_COUNT=$(find "$HOME_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.raw" -o -iname "*.psd" \) 2>/dev/null | wc -l)
-echo "| Imagens | $(format_size $IMG_SIZE) | $IMG_COUNT |"
+echo "| Imagens | $(format_size "$IMG_SIZE") | $IMG_COUNT |"
 
 # Áudio
 AUDIO_SIZE=$(find "$HOME_DIR" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.wav" -o -iname "*.ogg" -o -iname "*.m4a" \) -printf '%s\n' 2>/dev/null | awk '{s+=$1} END {print s+0}')
 AUDIO_COUNT=$(find "$HOME_DIR" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.wav" -o -iname "*.ogg" -o -iname "*.m4a" \) 2>/dev/null | wc -l)
-echo "| Áudio | $(format_size $AUDIO_SIZE) | $AUDIO_COUNT |"
+echo "| Áudio | $(format_size "$AUDIO_SIZE") | $AUDIO_COUNT |"
 
 # Documentos
 DOC_SIZE=$(find "$HOME_DIR" -type f \( -iname "*.pdf" -o -iname "*.doc*" -o -iname "*.xls*" -o -iname "*.ppt*" \) -printf '%s\n' 2>/dev/null | awk '{s+=$1} END {print s+0}')
 DOC_COUNT=$(find "$HOME_DIR" -type f \( -iname "*.pdf" -o -iname "*.doc*" -o -iname "*.xls*" -o -iname "*.ppt*" \) 2>/dev/null | wc -l)
-echo "| Documentos | $(format_size $DOC_SIZE) | $DOC_COUNT |"
+echo "| Documentos | $(format_size "$DOC_SIZE") | $DOC_COUNT |"
 
 # Arquivos compactados
 ZIP_SIZE=$(find "$HOME_DIR" -type f \( -iname "*.zip" -o -iname "*.tar*" -o -iname "*.gz" -o -iname "*.rar" -o -iname "*.7z" \) -printf '%s\n' 2>/dev/null | awk '{s+=$1} END {print s+0}')
 ZIP_COUNT=$(find "$HOME_DIR" -type f \( -iname "*.zip" -o -iname "*.tar*" -o -iname "*.gz" -o -iname "*.rar" -o -iname "*.7z" \) 2>/dev/null | wc -l)
-echo "| Compactados | $(format_size $ZIP_SIZE) | $ZIP_COUNT |"
+echo "| Compactados | $(format_size "$ZIP_SIZE") | $ZIP_COUNT |"
 
 echo ""
 
@@ -272,9 +269,9 @@ echo ""
 echo "| Tamanho | Última Modificação | Arquivo |"
 echo "|---------|-------------------|---------|"
 
-find "$HOME_DIR" -type f -size +200M 2>/dev/null | \
-    xargs -I{} stat --format="%s %Y %n" {} 2>/dev/null | \
-    sort -rn | head -20 | while read size mtime filepath; do
+find "$HOME_DIR" -type f -size +200M -print0 2>/dev/null | \
+    xargs -0 -I{} stat --format="%s %Y %n" "{}" 2>/dev/null | \
+    sort -rn | head -20 | while IFS= read -r size mtime filepath; do
         size_human=$(format_size "$size")
         mod_date=$(date -d "@$mtime" +"%Y-%m-%d")
         short_path="${filepath/#$HOME_DIR/~}"
@@ -289,9 +286,9 @@ echo ""
 echo "| Tamanho | Último Acesso | Arquivo |"
 echo "|---------|--------------|---------|"
 
-find "$HOME_DIR" -type f -size +100M -atime +180 2>/dev/null | \
-    xargs -I{} stat --format="%s %X %n" {} 2>/dev/null | \
-    sort -rn | head -15 | while read size atime filepath; do
+find "$HOME_DIR" -type f -size +100M -atime +180 -print0 2>/dev/null | \
+    xargs -0 -I{} stat --format="%s %X %n" "{}" 2>/dev/null | \
+    sort -rn | head -15 | while IFS= read -r size atime filepath; do
         size_human=$(format_size "$size")
         access_date=$(date -d "@$atime" +"%Y-%m-%d")
         short_path="${filepath/#$HOME_DIR/~}"
@@ -308,7 +305,7 @@ TRASH_DIR="$HOME_DIR/.local/share/Trash"
 if [ -d "$TRASH_DIR" ]; then
     TRASH_SIZE=$(get_size_bytes "$TRASH_DIR")
     TRASH_COUNT=$(find "$TRASH_DIR/files" -maxdepth 1 2>/dev/null | wc -l)
-    echo "- **Tamanho:** $(format_size $TRASH_SIZE)"
+    echo "- **Tamanho:** $(format_size "$TRASH_SIZE")"
     echo "- **Itens:** $TRASH_COUNT"
 else
     echo "Lixeira vazia ou não encontrada."
