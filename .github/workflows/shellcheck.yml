@@ -1,0 +1,78 @@
+name: ShellCheck
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.sh'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.sh'
+
+jobs:
+  shellcheck:
+    name: Validar Scripts Bash
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Executar ShellCheck
+        run: |
+          echo "Validando scripts..."
+          shellcheck --version
+          echo ""
+
+          # Encontrar todos os scripts .sh
+          scripts=$(find . -name "*.sh" -type f)
+
+          # Validar cada script
+          failed=0
+          for script in $scripts; do
+            echo "Verificando: $script"
+            if shellcheck -x "$script"; then
+              echo "  ✓ OK"
+            else
+              echo "  ✗ Problemas encontrados"
+              failed=1
+            fi
+            echo ""
+          done
+
+          if [ $failed -eq 1 ]; then
+            echo "Alguns scripts têm problemas. Veja acima."
+            exit 1
+          fi
+
+          echo "Todos os scripts passaram na validação!"
+
+  syntax-check:
+    name: Verificar Sintaxe Bash
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Verificar sintaxe
+        run: |
+          echo "Verificando sintaxe dos scripts..."
+
+          scripts=$(find . -name "*.sh" -type f)
+
+          for script in $scripts; do
+            echo "Verificando sintaxe: $script"
+            if bash -n "$script"; then
+              echo "  ✓ Sintaxe OK"
+            else
+              echo "  ✗ Erro de sintaxe"
+              exit 1
+            fi
+          done
+
+          echo "Todos os scripts têm sintaxe válida!"

@@ -5,7 +5,7 @@
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04%2B-E95420?style=flat-square&logo=ubuntu&logoColor=white)](https://ubuntu.com/)
 [![Bash](https://img.shields.io/badge/Bash-5.0+-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
-[![Maintenance](https://img.shields.io/badge/Maintained-Yes-green?style=flat-square)](https://github.com/SEU_USUARIO/linux-home-cleanup/commits/main)
+[![Maintenance](https://img.shields.io/badge/Maintained-Yes-green?style=flat-square)](https://github.com/johnnyvaz/linux-home-cleanup/commits/main)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 
 > **Scripts Bash para liberar espaço em disco, limpar cache de IDEs, Docker, node_modules e otimizar o diretório home no Linux.**
@@ -51,7 +51,7 @@
 
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/linux-home-cleanup.git
+git clone https://github.com/johnnyvaz/linux-home-cleanup.git
 cd linux-home-cleanup
 
 # Dê permissão de execução
